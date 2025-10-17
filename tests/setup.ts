@@ -3,18 +3,53 @@
  */
 
 import { beforeAll, afterAll, beforeEach } from 'vitest';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
+// Cargar variables de entorno desde .env.local
+try {
+  const envPath = resolve(process.cwd(), '.env.local');
+  const envFile = readFileSync(envPath, 'utf-8');
+  const lines = envFile.split('\n');
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
+    const [key, ...valueParts] = trimmed.split('=');
+    const value = valueParts.join('=').trim();
+
+    if (key && value && !process.env[key.trim()]) {
+      process.env[key.trim()] = value;
+    }
+  }
+
+  console.log('✅ Environment variables loaded from .env.local');
+} catch (error: any) {
+  console.warn('⚠️ Could not load .env.local:', error.message);
+  console.log('Tests will use existing environment variables');
+}
 
 // Setup global antes de todos los tests
 beforeAll(async () => {
-  console.log('🧪 Starting test suite...');
+  console.log('🧪 Starting test suite...\n');
 
-  // Configurar variables de entorno para tests
-  process.env.NODE_ENV = 'test';
-  process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'sk-test-key';
-  process.env.NEXT_PUBLIC_SUPABASE_URL =
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321';
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'test-anon-key';
+  // Verificar variables críticas
+  const requiredVars = [
+    'OPENAI_API_KEY',
+    'NEXT_PUBLIC_SUPABASE_URL',
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+  ];
+
+  const missing = requiredVars.filter((key) => !process.env[key]);
+
+  if (missing.length > 0) {
+    console.error(`❌ Missing required environment variables: ${missing.join(', ')}`);
+    console.error('Please ensure .env.local is configured properly');
+    throw new Error('Missing required environment variables');
+  }
+
+  console.log('✅ All required environment variables present\n');
 
   // Aquí puedes agregar setup adicional:
   // - Conectar a base de datos de test

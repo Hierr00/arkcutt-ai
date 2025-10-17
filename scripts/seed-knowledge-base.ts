@@ -3,6 +3,9 @@
  * Script para popular la base de conocimiento inicial del sistema RAG
  */
 
+// Load environment variables first
+import './load-env';
+
 import { addKnowledgeBatch } from '../lib/services/rag.service';
 import { CreateKnowledgeInput } from '../types/rag.types';
 

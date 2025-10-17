@@ -3,7 +3,7 @@
  * Retrieval-Augmented Generation service para Context Engineering
  */
 
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { generateEmbedding } from './embeddings.service';
 import {
   AgentType,
@@ -40,8 +40,11 @@ export async function addKnowledge(
     // Generar embedding
     const embeddingResponse = await generateEmbedding(input.content);
 
+    // Usar admin client para bypasear RLS
+    const client = supabaseAdmin || supabase;
+
     // Insertar en Supabase
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('knowledge_embeddings')
       .insert({
         agent_type: input.agent_type,
@@ -103,8 +106,11 @@ export async function addKnowledgeBatch(
       verified: input.verified || false,
     }));
 
+    // Usar admin client para bypasear RLS
+    const client = supabaseAdmin || supabase;
+
     // Insertar en Supabase
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('knowledge_embeddings')
       .insert(records)
       .select();

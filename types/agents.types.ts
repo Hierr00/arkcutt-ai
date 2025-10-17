@@ -16,6 +16,7 @@ export interface AgentExecutionContext {
   context?: {
     userMemory?: any;
     classification?: any;
+    memoryContext?: string;
     fileInfo?: {
       filename: string;
       url: string;

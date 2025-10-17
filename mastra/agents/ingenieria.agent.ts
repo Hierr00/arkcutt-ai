@@ -8,6 +8,7 @@ import { generateResponse, log } from '../index';
 import { AGENTS_CONFIG } from '../config/agents.config';
 import { validateBudgetData, validateContactData, extractContactInfo } from '@/lib/validators';
 import { saveBudgetRequest } from '@/lib/supabase';
+import { generateRAGContext } from '@/lib/services/rag.service';
 
 export const ingenieriaAgent = {
   ...AGENTS_CONFIG.ingenieria,
@@ -27,7 +28,25 @@ export const ingenieriaAgent = {
     const technicalValidation = validateBudgetData(technicalEntities);
     const contactValidation = validateContactData(contactInfo);
 
+    // Obtener contexto RAG para ingeniería (capabilities, tolerances, best practices)
+    let ragContext = '';
+    try {
+      const ragResult = await generateRAGContext(lastMessage, 'engineering', {
+        max_results: 3,
+        match_threshold: 0.6,
+        use_hybrid: false,
+        max_tokens: 800,
+      });
+      ragContext = ragResult.formatted_context;
+      log('debug', `📚 RAG context retrieved: ${ragResult.retrieved_docs.length} docs, ~${ragResult.token_count} tokens`);
+    } catch (error: any) {
+      log('error', 'Failed to retrieve RAG context', { error: error.message });
+      ragContext = '';
+    }
+
     const systemPrompt = `${AGENTS_CONFIG.ingenieria.system}
+
+${ragContext ? `${ragContext}\n` : ''}
 
 DATOS TÉCNICOS ACTUALES:
 ${JSON.stringify(technicalEntities, null, 2)}
@@ -47,11 +66,12 @@ ${memoryContext ? `\n🧠 CONTEXTO DE MEMORIA:\n${memoryContext}\n` : ''}
 INSTRUCCIONES:
 1. Si faltan datos técnicos críticos (material, cantidad): SOLICÍTALOS de forma amigable
 2. Si faltan datos de contacto (email, nombre): SOLICÍTALOS
-3. Si hay información de memoria sobre el usuario, úsala para rellenar campos faltantes o hacer sugerencias
-4. Si TODO está completo: Genera [SOLICITUD_COMPLETA] con resumen profesional
-5. Sé meticuloso pero amable
-6. Explica POR QUÉ necesitas cada dato
-7. Máximo 300 palabras
+3. Usa información de los documentos recuperados para validar viabilidad técnica
+4. Si hay información de memoria sobre el usuario, úsala para rellenar campos faltantes o hacer sugerencias
+5. Si TODO está completo: Genera [SOLICITUD_COMPLETA] con resumen profesional
+6. Sé meticuloso pero amable
+7. Explica POR QUÉ necesitas cada dato
+8. Máximo 300 palabras
 
 FORMATO CUANDO TODO ESTÉ COMPLETO:
 [SOLICITUD_COMPLETA]
