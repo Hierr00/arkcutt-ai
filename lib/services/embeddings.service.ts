@@ -3,7 +3,7 @@
  * Servicio para generar embeddings con OpenAI
  */
 
-import { openai } from '@/mastra';
+import { openai } from '@/lib/llm';
 import { EmbeddingRequest, EmbeddingResponse } from '@/types/rag.types';
 import { log } from '@/mastra';
 

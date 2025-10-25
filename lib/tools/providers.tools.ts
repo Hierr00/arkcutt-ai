@@ -131,7 +131,7 @@ export async function getProviderInfo(
       query: input.provider_name,
       agent_type: 'providers',
       match_count: 1,
-      match_threshold: 0.7,
+      match_threshold: 0.5,
       use_hybrid: false,
     });
 
@@ -370,40 +370,40 @@ export async function checkIfServiceIsExternal(
     // List of services that are EXTERNAL
     const externalServices = [
       'anodizado',
+      'anodizar',
       'cromado',
+      'cromar',
       'niquelado',
+      'niquelar',
       'pintura',
+      'pintar',
       'tratamiento térmico',
       'temple',
+      'templar',
       'revenido',
       'soldadura',
       'soldar',
       'corte láser',
       'corte plasma',
       'fundición',
+      'fundir',
       'forja',
+      'forjar',
       'estampación',
+      'estampar',
       'doblado',
+      'doblar',
       'plegado',
+      'plegar',
       'certificación',
+      'certificar',
       'ensayo',
     ];
 
     const lowerService = input.service_description.toLowerCase();
 
-    // Check if it's an internal service
-    for (const service of internalServices) {
-      if (lowerService.includes(service)) {
-        return {
-          is_external: false,
-          service_type: 'Mecanizado CNC',
-          reason: 'Arkcutt realiza todos los servicios de mecanizado CNC de metales',
-          suggested_action: 'Procesar internamente',
-        };
-      }
-    }
-
-    // Check if it's an external service
+    // IMPORTANT: Check for external services FIRST
+    // If any external service is mentioned, it's external (even if also mentions internal)
     for (const service of externalServices) {
       if (lowerService.includes(service)) {
         return {
@@ -411,6 +411,18 @@ export async function checkIfServiceIsExternal(
           service_type: service,
           reason: `Arkcutt NO realiza ${service}. Servicio debe ser subcontratado.`,
           suggested_action: `Buscar proveedor externo especializado en ${service}`,
+        };
+      }
+    }
+
+    // Check if it's ONLY internal service
+    for (const service of internalServices) {
+      if (lowerService.includes(service)) {
+        return {
+          is_external: false,
+          service_type: 'Mecanizado CNC',
+          reason: 'Arkcutt realiza todos los servicios de mecanizado CNC de metales',
+          suggested_action: 'Procesar internamente',
         };
       }
     }

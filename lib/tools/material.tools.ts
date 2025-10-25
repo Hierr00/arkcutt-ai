@@ -195,7 +195,10 @@ export async function findMaterialSupplier(
 
     return {
       found: true,
-      supplier_name: metadata.supplier_name,
+      supplier_name:
+        metadata.supplier_name ||
+        metadata.supplier ||
+        'Proveedor de material',
       contact_email: metadata.contact_email,
       contact_phone: metadata.contact_phone,
       materials_supplied: metadata.materials_supplied || [],

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npx shadcn@latest add card button badge separator tabs dialog dropdown-menu input textarea select label -y)",
+      "Bash(curl:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(npm run type-check)",
+      "Bash(npm install @radix-ui/react-icons)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(node scripts/check-rfqs.js:*)",
+      "Bash(node scripts/check-pdf-processing.js:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -212,7 +212,7 @@ export async function generateRAGContext(
       category,
       max_results = DEFAULT_CONFIG.default_match_count,
       match_threshold = DEFAULT_CONFIG.default_match_threshold,
-      use_hybrid = true,
+      use_hybrid = false, // Changed to false - hybrid search not implemented yet
       max_tokens = DEFAULT_CONFIG.max_tokens_per_context,
     } = options;
 
