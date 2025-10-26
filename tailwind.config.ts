@@ -50,11 +50,58 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // Figma Custom Colors
+        cyan: {
+          100: 'hsl(var(--cyan-100))',
+          200: 'hsl(var(--cyan-200))',
+          300: 'hsl(var(--cyan-300))',
+          400: 'hsl(var(--cyan-400))',
+        },
+        pink: {
+          100: 'hsl(var(--pink-100))',
+          200: 'hsl(var(--pink-200))',
+        },
+        expression: {
+          100: 'hsl(var(--expression-100))',
+          200: 'hsl(var(--expression-200))',
+          300: 'hsl(var(--expression-300))',
+        },
+        neutral: {
+          200: 'hsl(var(--neutral-200))',
+          300: 'hsl(var(--neutral-300))',
+          400: 'hsl(var(--neutral-400))',
+          500: 'hsl(var(--neutral-500))',
+          600: 'hsl(var(--neutral-600))',
+        },
+      },
+      spacing: {
+        // Figma Spacing System - Base 4px
+        '2xs': '2px',
+        'xs': '4px',
+        's': '8px',
+        'm': '12px',
+        'l': '16px',
+        'xl': '20px',
+        '2xl': '24px',
+        '3xl': '32px',
+        '4xl': '40px',
+        '5xl': '48px',
+        '6xl': '64px',
+        '7xl': '80px',
+        '8xl': '96px',
+        '9xl': '128px',
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        // Figma Border Radius System - Base 4px
+        '2xs': '2px',
+        'xs': '4px',
+        'sm': '6px',
+        DEFAULT: '8px',
+        'md': '10px',
+        'lg': '12px',
+        'xl': '16px',
+        '2xl': '20px',
+        '3xl': '24px',
       },
       keyframes: {
         'accordion-down': {
