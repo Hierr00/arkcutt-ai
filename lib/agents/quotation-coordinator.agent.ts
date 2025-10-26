@@ -199,7 +199,16 @@ async function createQuotationRequest(
                 specifications: [...(acc.specifications || []), ...(att.pdfData.technicalInfo.specifications || [])],
                 pdfConfidence: Math.max(acc.pdfConfidence || 0, att.pdfData.confidence),
               };
-            }, {});
+            }, {
+              material: undefined,
+              quantity: undefined,
+              dimensions: [],
+              tolerances: [],
+              surfaceFinish: undefined,
+              partName: undefined,
+              specifications: [],
+              pdfConfidence: 0,
+            } as any);
 
             log('info', '✅ Información técnica extraída de PDFs', {
               material: pdfTechnicalInfo.material,

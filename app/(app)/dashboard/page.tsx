@@ -390,9 +390,8 @@ export default function DashboardPage() {
       {/* Detail Modal */}
       {selectedQuotation && (
         <QuotationDetailModal
-          quotation={selectedQuotation}
+          quotationId={selectedQuotation.id}
           onClose={() => setSelectedQuotation(null)}
-          onUpdate={loadQuotations}
         />
       )}
     </div>

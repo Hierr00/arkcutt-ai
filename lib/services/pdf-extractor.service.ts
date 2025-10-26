@@ -35,11 +35,12 @@ export async function extractTextFromPDF(pdfBuffer: Buffer): Promise<{
     const parser = new PDFParse({ data: pdfBuffer });
     const result = await parser.getText();
 
-    log.info(`✅ PDF procesado: ${result.pages} páginas, ${result.text.length} caracteres`);
+    const pageCount = Array.isArray(result.pages) ? result.pages.length : result.pages;
+    log.info(`✅ PDF procesado: ${pageCount} páginas, ${result.text.length} caracteres`);
 
     return {
       text: result.text,
-      pages: result.pages,
+      pages: pageCount,
     };
   } catch (error: any) {
     log.error('❌ Error extrayendo texto del PDF', { error });

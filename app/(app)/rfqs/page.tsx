@@ -337,7 +337,7 @@ export default function RFQsPage() {
       {/* Detail Modal */}
       {selectedRFQ && (
         <RFQDetailModal
-          rfq={selectedRFQ}
+          rfqId={selectedRFQ.id}
           onClose={() => setSelectedRFQ(null)}
           onUpdate={loadRFQs}
         />
