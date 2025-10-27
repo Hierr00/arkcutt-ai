@@ -33,6 +33,25 @@ interface DashboardStats {
   activeSuppliers: number;
 }
 
+interface Provider {
+  id: string;
+  name: string;
+  email: string | null;
+  services: string[];
+  is_active: boolean;
+  total_quotes_requested: number;
+  response_rate: number | null;
+}
+
+interface Order {
+  id: string;
+  customer_email: string;
+  customer_name: string | null;
+  parts_description: string | null;
+  status: string;
+  created_at: string;
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     emailDeliverability: 13.2,
@@ -44,15 +63,17 @@ export default function DashboardPage() {
     totalSuppliers: 0,
     activeSuppliers: 0,
   });
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadDashboardStats();
-    const interval = setInterval(loadDashboardStats, 60000);
+    loadDashboardData();
+    const interval = setInterval(loadDashboardData, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  async function loadDashboardStats() {
+  async function loadDashboardData() {
     try {
       setLoading(true);
       const [quotationsRes, providersRes] = await Promise.all([
@@ -63,6 +84,7 @@ export default function DashboardPage() {
       const quotationsData = await quotationsRes.json();
       const providersData = await providersRes.json();
 
+      // Set stats
       if (quotationsData.stats) {
         setStats((prev) => ({
           ...prev,
@@ -78,7 +100,14 @@ export default function DashboardPage() {
         }));
       }
 
+      // Set recent orders
+      if (quotationsData.quotations) {
+        setRecentOrders(quotationsData.quotations.slice(0, 5));
+      }
+
+      // Set providers
       if (providersData.providers) {
+        setProviders(providersData.providers.slice(0, 5));
         setStats((prev) => ({
           ...prev,
           totalSuppliers: providersData.providers.length,
@@ -86,7 +115,7 @@ export default function DashboardPage() {
         }));
       }
     } catch (error) {
-      console.error('Error loading dashboard stats:', error);
+      console.error('Error loading dashboard data:', error);
     } finally {
       setLoading(false);
     }
@@ -270,33 +299,70 @@ export default function DashboardPage() {
                   <div>
                     <CardTitle>Suppliers</CardTitle>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Manage your supplier network
+                      Recently found suppliers ({stats.totalSuppliers} total)
                     </p>
                   </div>
-                  <Button variant="ghost" size="sm" className="gap-1">
-                    View
-                    <ArrowUpRight className="h-3 w-3" />
+                  <Button variant="ghost" size="sm" className="gap-1" asChild>
+                    <a href="/suppliers">
+                      View All
+                      <ArrowUpRight className="h-3 w-3" />
+                    </a>
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start gap-2">
-                    <Plus className="h-4 w-4" />
-                    Find Suppliers
-                  </Button>
-
-                  <div className="pt-3 space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Total Suppliers</span>
-                      <span className="font-semibold">{stats.totalSuppliers}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Active</span>
-                      <span className="font-semibold">{stats.activeSuppliers}</span>
-                    </div>
+                {loading ? (
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                      <Skeleton key={i} className="h-16 w-full" />
+                    ))}
                   </div>
-                </div>
+                ) : providers.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No suppliers found yet</p>
+                    <Button variant="outline" size="sm" className="mt-3 gap-2">
+                      <Plus className="h-4 w-4" />
+                      Find Suppliers
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {providers.map((provider) => (
+                      <div
+                        key={provider.id}
+                        className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/5 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="h-8 w-8 rounded-full bg-cyan-100 dark:bg-cyan-950 flex items-center justify-center flex-shrink-0">
+                            <Users className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{provider.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {provider.email || 'No email'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {provider.is_active && (
+                            <div className="h-2 w-2 rounded-full bg-green-500" />
+                          )}
+                          <Badge variant="secondary" className="text-xs">
+                            {provider.total_quotes_requested} RFQs
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                    {providers.length >= 5 && (
+                      <Button variant="ghost" size="sm" className="w-full mt-2" asChild>
+                        <a href="/suppliers">
+                          View all {stats.totalSuppliers} suppliers →
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -307,33 +373,90 @@ export default function DashboardPage() {
                   <div>
                     <CardTitle>Orders</CardTitle>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Recent quotation requests
+                      Recent quotation requests ({stats.totalOrders} total)
                     </p>
                   </div>
-                  <Button variant="ghost" size="sm" className="gap-1">
-                    View
-                    <ArrowUpRight className="h-3 w-3" />
+                  <Button variant="ghost" size="sm" className="gap-1" asChild>
+                    <a href="/orders">
+                      View All
+                      <ArrowUpRight className="h-3 w-3" />
+                    </a>
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <Button className="w-full justify-start gap-2 bg-cyan-500 hover:bg-cyan-600 text-white border-none">
-                    <CheckCircle2 className="h-4 w-4" />
-                    AI Enriched..
-                  </Button>
-
-                  <div className="pt-3 grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Completed</p>
-                      <p className="text-2xl font-bold">{stats.completedOrders}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">In Progress</p>
-                      <p className="text-2xl font-bold">{stats.activeOrders}</p>
-                    </div>
+                {loading ? (
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                      <Skeleton key={i} className="h-16 w-full" />
+                    ))}
                   </div>
-                </div>
+                ) : recentOrders.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <Package className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No orders yet</p>
+                    <Button className="mt-3 gap-2 bg-cyan-500 hover:bg-cyan-600" size="sm">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Process New Emails
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {recentOrders.map((order) => (
+                      <div
+                        key={order.id}
+                        className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/5 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={cn(
+                            "h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0",
+                            order.status === 'ready_for_human' && "bg-emerald-100 dark:bg-emerald-950",
+                            order.status === 'gathering_info' && "bg-blue-100 dark:bg-blue-950",
+                            order.status === 'waiting_providers' && "bg-amber-100 dark:bg-amber-950",
+                            order.status === 'quoted' && "bg-violet-100 dark:bg-violet-950"
+                          )}>
+                            <Package className={cn(
+                              "h-4 w-4",
+                              order.status === 'ready_for_human' && "text-emerald-600 dark:text-emerald-400",
+                              order.status === 'gathering_info' && "text-blue-600 dark:text-blue-400",
+                              order.status === 'waiting_providers' && "text-amber-600 dark:text-amber-400",
+                              order.status === 'quoted' && "text-violet-600 dark:text-violet-400"
+                            )} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {order.customer_name || order.customer_email}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {order.parts_description || 'No description'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Badge
+                            variant="secondary"
+                            className={cn(
+                              "text-xs",
+                              order.status === 'ready_for_human' && "bg-emerald-100 text-emerald-700",
+                              order.status === 'gathering_info' && "bg-blue-100 text-blue-700",
+                              order.status === 'waiting_providers' && "bg-amber-100 text-amber-700",
+                              order.status === 'quoted' && "bg-violet-100 text-violet-700"
+                            )}
+                          >
+                            {order.status.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                    {recentOrders.length >= 5 && (
+                      <Button variant="ghost" size="sm" className="w-full mt-2" asChild>
+                        <a href="/orders">
+                          View all {stats.totalOrders} orders →
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
