@@ -1,24 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { QuotationDetailModal } from '@/components/quotation-detail-modal';
 import {
   CheckCircle2,
-  Clock,
   Search,
   AlertCircle,
-  FileCheck,
-  Mail,
   TrendingUp,
+  Mail,
   Building2,
   Package,
   Calendar,
-  ArrowRight,
+  Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -52,39 +49,24 @@ interface Stats {
 
 const statusConfig = {
   ready_for_human: {
-    label: 'Ready for Quote',
-    color: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300',
-    icon: AlertCircle,
-    iconColor: 'text-emerald-600 dark:text-emerald-400',
-    priority: 1,
+    label: 'Ready',
+    color: 'text-green-600 bg-green-50 border-green-200',
   },
   gathering_info: {
-    label: 'Gathering Info',
-    color: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300',
-    icon: Search,
-    iconColor: 'text-blue-600 dark:text-blue-400',
-    priority: 2,
+    label: 'Gathering info',
+    color: 'text-blue-600 bg-blue-50 border-blue-200',
   },
   waiting_providers: {
-    label: 'Finding Providers',
-    color: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300',
-    icon: TrendingUp,
-    iconColor: 'text-amber-600 dark:text-amber-400',
-    priority: 3,
+    label: 'Finding providers',
+    color: 'text-amber-600 bg-amber-50 border-amber-200',
   },
   pending: {
-    label: 'Needs Review',
-    color: 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900 dark:text-slate-300',
-    icon: Clock,
-    iconColor: 'text-slate-600 dark:text-slate-400',
-    priority: 4,
+    label: 'Pending',
+    color: 'text-gray-600 bg-gray-50 border-gray-200',
   },
   quoted: {
     label: 'Quoted',
-    color: 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950 dark:text-violet-300',
-    icon: FileCheck,
-    iconColor: 'text-violet-600 dark:text-violet-400',
-    priority: 5,
+    color: 'text-purple-600 bg-purple-50 border-purple-200',
   },
 };
 
@@ -102,11 +84,13 @@ function getRelativeTime(dateString: string): string {
   return `${diffDays}d ago`;
 }
 
-export default function OrdersPage() {
+function OrdersContent() {
   const searchParams = useSearchParams();
   const view = searchParams?.get('view') || 'active';
 
   const [quotations, setQuotations] = useState<QuotationRequest[]>([]);
+  const [filteredQuotations, setFilteredQuotations] = useState<QuotationRequest[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats] = useState<Stats>({
     total: 0,
     ready_for_human: 0,
@@ -138,6 +122,7 @@ export default function OrdersPage() {
 
       if (data.quotations) {
         setQuotations(data.quotations);
+        setFilteredQuotations(data.quotations);
       }
 
       if (data.stats) {
@@ -150,97 +135,89 @@ export default function OrdersPage() {
     }
   }
 
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredQuotations(quotations);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = quotations.filter((q) => {
+      return (
+        q.customer_name?.toLowerCase().includes(query) ||
+        q.customer_email?.toLowerCase().includes(query) ||
+        q.customer_company?.toLowerCase().includes(query) ||
+        q.parts_description?.toLowerCase().includes(query) ||
+        q.material_requested?.toLowerCase().includes(query)
+      );
+    });
+    setFilteredQuotations(filtered);
+  }, [searchQuery, quotations]);
+
   const getViewTitle = () => {
     switch (view) {
       case 'active':
-        return { title: 'Active Orders', description: 'Orders where the AI is actively working' };
+        return { title: 'Active orders', description: 'Orders currently being processed' };
       case 'ready_for_human':
-        return { title: 'Ready for Quote', description: 'Orders ready for human quotation' };
+        return { title: 'Ready for quote', description: 'Orders ready for quotation' };
       case 'gathering_info':
-        return { title: 'Gathering Information', description: 'AI is collecting required information' };
+        return { title: 'Gathering information', description: 'AI is collecting required information' };
       case 'waiting_providers':
-        return { title: 'Finding Providers', description: 'AI is searching for external providers' };
+        return { title: 'Finding providers', description: 'AI is searching for providers' };
       case 'completed':
-        return { title: 'Completed Orders', description: 'Orders that have been quoted' };
+        return { title: 'Completed', description: 'Quoted orders' };
       default:
-        return { title: 'All Orders', description: 'Complete order history' };
+        return { title: 'All orders', description: 'Complete order history' };
     }
   };
 
   const viewInfo = getViewTitle();
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
+      <div className="border-b border-border bg-white">
         <div className="px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">{viewInfo.title}</h1>
-              <p className="text-muted-foreground mt-1">{viewInfo.description}</p>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex-1">
+              <h1 className="text-2xl font-semibold text-foreground">{viewInfo.title}</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">{viewInfo.description}</p>
             </div>
-            <Button size="sm" className="gap-2">
-              <Mail className="h-4 w-4" />
-              Process New Emails
-            </Button>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search orders..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-9 w-64 rounded-md border border-border bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                />
+              </div>
+              <Button size="sm" className="gap-2">
+                <Plus className="h-4 w-4" />
+                New order
+              </Button>
+            </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-            <Card className="border-none shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Ready for Quote</p>
-                    <p className="text-2xl font-bold mt-1">{stats.ready_for_human}</p>
-                  </div>
-                  <div className="h-12 w-12 rounded-lg bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center">
-                    <AlertCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                </div>
-              </CardContent>
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-4">
+            <Card className="p-4 border border-border bg-white">
+              <div className="text-xs text-muted-foreground mb-1">Ready</div>
+              <div className="text-2xl font-semibold">{stats.ready_for_human}</div>
             </Card>
-
-            <Card className="border-none shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Gathering Info</p>
-                    <p className="text-2xl font-bold mt-1">{stats.gathering_info}</p>
-                  </div>
-                  <div className="h-12 w-12 rounded-lg bg-blue-100 dark:bg-blue-950 flex items-center justify-center">
-                    <Search className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                </div>
-              </CardContent>
+            <Card className="p-4 border border-border bg-white">
+              <div className="text-xs text-muted-foreground mb-1">Gathering</div>
+              <div className="text-2xl font-semibold">{stats.gathering_info}</div>
             </Card>
-
-            <Card className="border-none shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Finding Providers</p>
-                    <p className="text-2xl font-bold mt-1">{stats.waiting_providers}</p>
-                  </div>
-                  <div className="h-12 w-12 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-                  </div>
-                </div>
-              </CardContent>
+            <Card className="p-4 border border-border bg-white">
+              <div className="text-xs text-muted-foreground mb-1">Finding</div>
+              <div className="text-2xl font-semibold">{stats.waiting_providers}</div>
             </Card>
-
-            <Card className="border-none shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Completed</p>
-                    <p className="text-2xl font-bold mt-1">{stats.quoted}</p>
-                  </div>
-                  <div className="h-12 w-12 rounded-lg bg-violet-100 dark:bg-violet-950 flex items-center justify-center">
-                    <CheckCircle2 className="h-6 w-6 text-violet-600 dark:text-violet-400" />
-                  </div>
-                </div>
-              </CardContent>
+            <Card className="p-4 border border-border bg-white">
+              <div className="text-xs text-muted-foreground mb-1">Completed</div>
+              <div className="text-2xl font-semibold">{stats.quoted}</div>
             </Card>
           </div>
         </div>
@@ -249,137 +226,110 @@ export default function OrdersPage() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-8">
         {loading ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-6">
-                  <div className="space-y-3">
-                    <Skeleton className="h-4 w-1/4" />
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                </CardContent>
-              </Card>
+              <Skeleton key={i} className="h-32 w-full" />
             ))}
           </div>
-        ) : quotations.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <Mail className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-1">No orders found</h3>
-              <p className="text-sm text-muted-foreground text-center max-w-sm">
-                {view === 'active'
-                  ? 'There are no active orders at the moment. New orders will appear here automatically.'
-                  : `No orders in this category yet.`}
-              </p>
-            </CardContent>
-          </Card>
+        ) : filteredQuotations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted/50 mb-4">
+              <Mail className="h-8 w-8 text-muted-foreground/50" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-base font-semibold mb-1">
+              {searchQuery ? 'No results found' : 'No orders found'}
+            </h3>
+            <p className="text-sm text-muted-foreground text-center max-w-sm">
+              {searchQuery
+                ? `No orders match "${searchQuery}". Try a different search term.`
+                : view === 'active'
+                ? 'No active orders at the moment'
+                : `No orders in this category yet`}
+            </p>
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchQuery('')}
+                className="mt-4"
+              >
+                Clear search
+              </Button>
+            )}
+          </div>
         ) : (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            {quotations.map((quotation) => {
+          <div className="space-y-3">
+            {filteredQuotations.map((quotation) => {
               const config = statusConfig[quotation.status as keyof typeof statusConfig];
               if (!config) return null;
-
-              const Icon = config.icon;
 
               return (
                 <Card
                   key={quotation.id}
-                  className="group hover:shadow-md transition-all duration-200 cursor-pointer border-none shadow-sm"
+                  className="p-5 border border-border bg-white hover:bg-muted/20 transition-all duration-200 cursor-pointer group"
                   onClick={() => setSelectedQuotation(quotation)}
                 >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className={cn('gap-1.5', config.color)}>
-                          <Icon className="h-3 w-3" />
+                  <div className="flex items-start justify-between gap-4">
+                    {/* Main Info */}
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-3">
+                        <span className="font-medium text-base">
+                          {quotation.customer_name || quotation.customer_email}
+                        </span>
+                        <span className={cn(
+                          "text-xs px-2 py-1 rounded-md border font-medium",
+                          config.color
+                        )}>
                           {config.label}
-                        </Badge>
+                        </span>
                         <span className="text-xs text-muted-foreground">
                           {getRelativeTime(quotation.created_at)}
                         </span>
                       </div>
-                      {quotation.agent_analysis?.confidence && (
-                        <Badge variant="secondary" className="text-xs">
-                          {Math.round(quotation.agent_analysis.confidence * 100)}%
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
 
-                  <CardContent className="space-y-4">
-                    {/* Customer Info */}
-                    <div>
-                      <p className="font-semibold text-lg">
-                        {quotation.customer_name || 'Unknown Customer'}
-                      </p>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1.5">
-                          <Mail className="h-3.5 w-3.5" />
-                          {quotation.customer_email}
-                        </div>
+                      {quotation.parts_description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {quotation.parts_description}
+                        </p>
+                      )}
+
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         {quotation.customer_company && (
                           <div className="flex items-center gap-1.5">
                             <Building2 className="h-3.5 w-3.5" />
                             {quotation.customer_company}
                           </div>
                         )}
+                        {quotation.material_requested && (
+                          <div className="flex items-center gap-1.5">
+                            <Package className="h-3.5 w-3.5" />
+                            {quotation.material_requested}
+                          </div>
+                        )}
+                        {quotation.quantity && (
+                          <div>Qty: {quotation.quantity}</div>
+                        )}
                       </div>
-                    </div>
 
-                    {/* Parts Description */}
-                    {quotation.parts_description && (
-                      <div className="rounded-lg bg-muted/50 p-3">
-                        <p className="text-sm line-clamp-2">{quotation.parts_description}</p>
-                      </div>
-                    )}
-
-                    {/* Technical Details */}
-                    <div className="flex items-center gap-4 text-sm">
-                      {quotation.material_requested && (
-                        <div className="flex items-center gap-1.5">
-                          <Package className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span className="font-medium">{quotation.material_requested}</span>
-                        </div>
-                      )}
-                      {quotation.quantity && (
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-muted-foreground">Qty:</span>
-                          <span className="font-medium">{quotation.quantity}</span>
+                      {quotation.missing_info && quotation.missing_info.length > 0 && (
+                        <div className="flex gap-1.5 flex-wrap">
+                          <span className="text-xs text-muted-foreground">Missing:</span>
+                          {quotation.missing_info.map((info) => (
+                            <span key={info} className="text-xs px-2 py-0.5 rounded border border-border bg-background">
+                              {info}
+                            </span>
+                          ))}
                         </div>
                       )}
                     </div>
 
-                    {/* Missing Info */}
-                    {quotation.missing_info && quotation.missing_info.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        <span className="text-xs text-muted-foreground">Missing:</span>
-                        {quotation.missing_info.map((info) => (
-                          <Badge key={info} variant="outline" className="text-xs">
-                            {info}
-                          </Badge>
-                        ))}
+                    {/* Confidence */}
+                    {quotation.agent_analysis?.confidence && (
+                      <div className="text-xs text-muted-foreground">
+                        {Math.round(quotation.agent_analysis.confidence * 100)}% confidence
                       </div>
                     )}
-
-                    {/* Action */}
-                    <div className="flex items-center justify-between pt-2 border-t">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Calendar className="h-3.5 w-3.5" />
-                        Updated {getRelativeTime(quotation.updated_at)}
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="gap-1.5 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                      >
-                        View Details
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </CardContent>
+                  </div>
                 </Card>
               );
             })}
@@ -395,5 +345,17 @@ export default function OrdersPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-full">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    }>
+      <OrdersContent />
+    </Suspense>
   );
 }
