@@ -58,11 +58,12 @@ const data = {
       url: "/settings",
       icon: SettingsIcon,
     },
-    {
-      title: "Help",
-      url: "/help",
-      icon: HelpCircleIcon,
-    },
+    // TODO: Uncomment when /help page is created
+    // {
+    //   title: "Help",
+    //   url: "/help",
+    //   icon: HelpCircleIcon,
+    // },
   ],
 }
 
