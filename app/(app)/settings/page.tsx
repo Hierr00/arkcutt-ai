@@ -2,10 +2,12 @@
 
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Sparkles, Mail, Building2, Shield } from 'lucide-react';
 
 export default function SettingsPage() {
   return (
+    <TooltipProvider>
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="border-b border-border bg-white">
@@ -43,9 +45,16 @@ export default function SettingsPage() {
                     Automatically process new emails every 5 minutes
                   </p>
                 </div>
-                <Button variant="outline" size="sm">
-                  Enabled
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm" disabled>
+                      Enabled
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Configuration coming soon</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <div>
@@ -54,9 +63,16 @@ export default function SettingsPage() {
                     Minimum confidence to handle orders automatically
                   </p>
                 </div>
-                <Button variant="outline" size="sm">
-                  75%
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm" disabled>
+                      75%
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Configuration coming soon</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               <div className="flex items-center justify-between py-3">
                 <div>
@@ -65,9 +81,16 @@ export default function SettingsPage() {
                     Automatically search for providers using Google Places
                   </p>
                 </div>
-                <Button variant="outline" size="sm">
-                  Enabled
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm" disabled>
+                      Enabled
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Configuration coming soon</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </Card>
@@ -105,9 +128,16 @@ export default function SettingsPage() {
                     Read unread emails from inbox
                   </p>
                 </div>
-                <Button variant="outline" size="sm">
-                  Configure
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm" disabled>
+                      Configure
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Configuration coming soon</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </Card>
@@ -131,9 +161,16 @@ export default function SettingsPage() {
                   <p className="font-medium text-sm">Company name</p>
                   <p className="text-xs text-muted-foreground mt-0.5">Arkcutt AI</p>
                 </div>
-                <Button variant="ghost" size="sm">
-                  Edit
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="sm" disabled>
+                      Edit
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Configuration coming soon</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <div>
@@ -142,9 +179,16 @@ export default function SettingsPage() {
                     Services you can provide in-house
                   </p>
                 </div>
-                <Button variant="ghost" size="sm">
-                  Manage
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="sm" disabled>
+                      Manage
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Configuration coming soon</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               <div className="flex items-center justify-between py-3">
                 <div>
@@ -153,9 +197,16 @@ export default function SettingsPage() {
                     Services requiring external providers
                   </p>
                 </div>
-                <Button variant="ghost" size="sm">
-                  Manage
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="sm" disabled>
+                      Manage
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Configuration coming soon</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </Card>
@@ -181,9 +232,16 @@ export default function SettingsPage() {
                     For AI processing and analysis
                   </p>
                 </div>
-                <Button variant="ghost" size="sm">
-                  Update
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="sm" disabled>
+                      Update
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Configuration coming soon</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               <div className="flex items-center justify-between py-3">
                 <div>
@@ -192,14 +250,22 @@ export default function SettingsPage() {
                     For provider search
                   </p>
                 </div>
-                <Button variant="ghost" size="sm">
-                  Update
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="sm" disabled>
+                      Update
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Configuration coming soon</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </Card>
         </div>
       </div>
     </div>
+    </TooltipProvider>
   );
 }
