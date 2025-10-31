@@ -11,6 +11,9 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
 
+// Force dynamic rendering to prevent static generation errors with AuthContext
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const router = useRouter();
   const { signIn, isAuthenticated, isLoading } = useAuth();
