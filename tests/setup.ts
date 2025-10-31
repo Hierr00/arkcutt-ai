@@ -30,9 +30,16 @@ try {
   console.log('Tests will use existing environment variables');
 }
 
+// Import global mocks
+import { setupGlobalMocks, resetGlobalMocks } from './mocks';
+
 // Setup global antes de todos los tests
 beforeAll(async () => {
   console.log('🧪 Starting test suite...\n');
+
+  // Setup global mocks
+  setupGlobalMocks();
+  console.log('✅ Global mocks initialized\n');
 
   // Verificar variables críticas
   const requiredVars = [
@@ -68,15 +75,9 @@ afterAll(async () => {
 
 // Setup antes de cada test
 beforeEach(() => {
-  // Reset de estado si es necesario
+  // Reset de estado y mocks
+  resetGlobalMocks();
 });
 
-// Mock de funciones externas si es necesario
-// (por ejemplo, llamadas a OpenAI en tests unitarios)
-export const mockOpenAI = () => {
-  // Mock implementation
-};
-
-export const mockSupabase = () => {
-  // Mock implementation
-};
+// Export mocks for use in tests
+export * from './mocks';

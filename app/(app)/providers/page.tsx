@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,8 +11,6 @@ import {
   Phone,
   MapPin,
   ExternalLink,
-  Star,
-  TrendingUp,
   Search,
   Plus,
 } from 'lucide-react';
@@ -76,76 +73,49 @@ export default function ProvidersPage() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
+      <div className="border-b border-border bg-white">
         <div className="px-8 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Providers</h1>
-              <p className="text-muted-foreground mt-1">
-                External service providers and suppliers
+              <h1 className="text-2xl font-semibold text-foreground">Suppliers</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Manage your external service providers
               </p>
             </div>
             <Button size="sm" className="gap-2">
               <Plus className="h-4 w-4" />
-              Add Provider
+              Add supplier
             </Button>
           </div>
 
           {/* Search & Stats */}
-          <div className="flex items-center gap-4 mt-6">
+          <div className="flex items-center gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search providers or services..."
+                placeholder="Search suppliers or services..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-muted/30 border-border hover:bg-muted/50 focus-visible:ring-1 focus-visible:ring-ring transition-colors"
               />
             </div>
 
-            <div className="flex gap-4">
-              <Card className="border-none shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
-                      <Building2 className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total</p>
-                      <p className="text-xl font-bold">{stats.total}</p>
-                    </div>
-                  </div>
-                </CardContent>
+            <div className="flex gap-3">
+              <Card className="p-3 border border-border bg-white">
+                <div className="text-xs text-muted-foreground mb-0.5">Total</div>
+                <div className="text-xl font-semibold">{stats.total}</div>
               </Card>
 
-              <Card className="border-none shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center">
-                      <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Active</p>
-                      <p className="text-xl font-bold">{stats.active}</p>
-                    </div>
-                  </div>
-                </CardContent>
+              <Card className="p-3 border border-border bg-white">
+                <div className="text-xs text-muted-foreground mb-0.5">Active</div>
+                <div className="text-xl font-semibold">{stats.active}</div>
               </Card>
 
-              <Card className="border-none shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center">
-                      <Star className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">High Quality</p>
-                      <p className="text-xl font-bold">{stats.highReliability}</p>
-                    </div>
-                  </div>
-                </CardContent>
+              <Card className="p-3 border border-border bg-white">
+                <div className="text-xs text-muted-foreground mb-0.5">High quality</div>
+                <div className="text-xl font-semibold">{stats.highReliability}</div>
               </Card>
             </div>
           </div>
@@ -157,60 +127,45 @@ export default function ProvidersPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-6">
-                  <div className="space-y-3">
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                </CardContent>
-              </Card>
+              <Skeleton key={i} className="h-64 w-full" />
             ))}
           </div>
         ) : filteredProviders.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <Building2 className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-1">No providers found</h3>
-              <p className="text-sm text-muted-foreground text-center max-w-sm">
-                {searchQuery
-                  ? `No providers match "${searchQuery}"`
-                  : 'No providers have been added yet.'}
-              </p>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted/50 mb-4">
+              <Building2 className="h-8 w-8 text-muted-foreground/50" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-base font-semibold mb-1">No suppliers found</h3>
+            <p className="text-sm text-muted-foreground text-center max-w-sm">
+              {searchQuery
+                ? `No suppliers match "${searchQuery}"`
+                : 'No suppliers have been added yet'}
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredProviders.map((provider) => (
               <Card
                 key={provider.id}
                 className={cn(
-                  'group hover:shadow-md transition-all duration-200 border-none shadow-sm',
+                  'p-5 border border-border bg-white hover:bg-muted/20 transition-all duration-200',
                   provider.blacklisted && 'opacity-50'
                 )}
               >
-                <CardHeader className="pb-3">
+                <div className="space-y-4">
+                  {/* Header */}
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
-                      <Building2 className="h-5 w-5 text-muted-foreground" />
-                      <h3 className="font-semibold line-clamp-1">{provider.name}</h3>
+                      <Building2 className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                      <h3 className="font-medium line-clamp-1">{provider.name}</h3>
                     </div>
                     {provider.reliability_score !== null && (
-                      <Badge
-                        variant={provider.reliability_score > 0.7 ? 'default' : 'secondary'}
-                        className="gap-1"
-                      >
-                        <Star className="h-3 w-3" />
+                      <span className="text-xs text-muted-foreground">
                         {(provider.reliability_score * 100).toFixed(0)}%
-                      </Badge>
+                      </span>
                     )}
                   </div>
-                </CardHeader>
 
-                <CardContent className="space-y-4">
                   {/* Contact Info */}
                   <div className="space-y-2 text-sm">
                     {provider.email && (
@@ -239,7 +194,7 @@ export default function ProvidersPage() {
                         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
-                        <span className="truncate">Website</span>
+                        <span className="truncate text-xs">Website</span>
                       </a>
                     )}
                   </div>
@@ -248,44 +203,42 @@ export default function ProvidersPage() {
                   {provider.services.length > 0 && (
                     <div>
                       <p className="text-xs text-muted-foreground mb-2">Services</p>
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1.5">
                         {provider.services.slice(0, 3).map((service) => (
-                          <Badge key={service} variant="outline" className="text-xs">
+                          <span
+                            key={service}
+                            className="text-xs px-2 py-0.5 rounded border border-border bg-background"
+                          >
                             {service}
-                          </Badge>
+                          </span>
                         ))}
                         {provider.services.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
+                          <span className="text-xs px-2 py-0.5 rounded border border-border bg-background">
                             +{provider.services.length - 3}
-                          </Badge>
+                          </span>
                         )}
                       </div>
                     </div>
                   )}
 
                   {/* Stats */}
-                  <div className="grid grid-cols-2 gap-4 pt-3 border-t text-xs">
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border">
                     <div>
-                      <p className="text-muted-foreground">RFQs Sent</p>
-                      <p className="text-lg font-semibold mt-1">
+                      <p className="text-xs text-muted-foreground">RFQs sent</p>
+                      <p className="text-lg font-semibold mt-0.5">
                         {provider.total_quotes_requested}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Response Rate</p>
-                      <p className="text-lg font-semibold mt-1">
+                      <p className="text-xs text-muted-foreground">Response rate</p>
+                      <p className="text-lg font-semibold mt-0.5">
                         {provider.response_rate !== null
                           ? `${(provider.response_rate * 100).toFixed(0)}%`
                           : 'N/A'}
                       </p>
                     </div>
                   </div>
-
-                  {/* Action */}
-                  <Button variant="outline" size="sm" className="w-full mt-2">
-                    View Details
-                  </Button>
-                </CardContent>
+                </div>
               </Card>
             ))}
           </div>

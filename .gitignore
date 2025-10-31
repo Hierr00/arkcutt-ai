@@ -17,6 +17,7 @@ dist/
 .env
 .env*.local
 .env.production
+VERCEL_ENV_VARS.txt
 
 # Logs
 *.log

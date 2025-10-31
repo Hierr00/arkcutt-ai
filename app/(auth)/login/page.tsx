@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,10 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
 
-// Force dynamic rendering to prevent static generation errors with AuthContext
-export const dynamic = 'force-dynamic';
-
-export default function LoginPage() {
+// Inner component that uses the auth context
+function LoginForm() {
   const router = useRouter();
   const { signIn, isAuthenticated, isLoading } = useAuth();
   const [email, setEmail] = useState('');
@@ -173,5 +171,14 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+// Main component that wraps with AuthProvider
+export default function LoginPage() {
+  return (
+    <AuthProvider>
+      <LoginForm />
+    </AuthProvider>
   );
 }

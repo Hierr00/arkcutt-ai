@@ -137,7 +137,7 @@ export function RFQDetailModal({ rfqId, onClose, onUpdate }: Props) {
         className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
         onClick={onClose}
       >
-        <Card className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
+        <Card className="max-w-3xl w-full bg-white border border-border" onClick={(e) => e.stopPropagation()}>
           <CardContent className="py-16 text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
             <p className="text-sm text-muted-foreground mt-4">Loading details...</p>
@@ -166,10 +166,10 @@ export function RFQDetailModal({ rfqId, onClose, onUpdate }: Props) {
       onClick={onClose}
     >
       <Card
-        className="max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+        className="max-w-3xl w-full max-h-[90vh] overflow-y-auto bg-white border border-border"
         onClick={(e) => e.stopPropagation()}
       >
-        <CardHeader className="border-b sticky top-0 bg-card z-10">
+        <CardHeader className="border-b border-border sticky top-0 bg-white z-10">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>RFQ Details</CardTitle>
@@ -195,7 +195,7 @@ export function RFQDetailModal({ rfqId, onClose, onUpdate }: Props) {
           {/* Provider Information */}
           <div>
             <h3 className="text-sm font-semibold mb-3">Provider Information</h3>
-            <div className="bg-muted rounded-lg p-4 space-y-2 text-sm">
+            <div className="bg-muted/30 rounded-lg p-4 space-y-2 text-sm border border-border">
               <div className="flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium">{rfq.provider_name}</span>
@@ -223,7 +223,7 @@ export function RFQDetailModal({ rfqId, onClose, onUpdate }: Props) {
           {/* Service Details */}
           <div>
             <h3 className="text-sm font-semibold mb-3">Service Requested</h3>
-            <div className="bg-muted rounded-lg p-4 space-y-2 text-sm">
+            <div className="bg-muted/30 rounded-lg p-4 space-y-2 text-sm border border-border">
               <div>
                 <span className="text-muted-foreground">Service Type: </span>
                 <span className="font-medium">{rfq.service_type}</span>
@@ -254,7 +254,7 @@ export function RFQDetailModal({ rfqId, onClose, onUpdate }: Props) {
           {/* Related Order */}
           <div>
             <h3 className="text-sm font-semibold mb-3">Related Customer Order</h3>
-            <div className="bg-muted rounded-lg p-4 space-y-2 text-sm">
+            <div className="bg-muted/30 rounded-lg p-4 space-y-2 text-sm border border-border">
               <div>
                 <span className="text-muted-foreground">Customer: </span>
                 <span className="font-medium">
@@ -306,7 +306,7 @@ export function RFQDetailModal({ rfqId, onClose, onUpdate }: Props) {
                   <Label htmlFor="notes">Notes (optional)</Label>
                   <textarea
                     id="notes"
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 border border-border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-ring"
                     rows={3}
                     placeholder="Any additional notes from the provider..."
                     value={notes}
@@ -335,7 +335,7 @@ export function RFQDetailModal({ rfqId, onClose, onUpdate }: Props) {
           ) : rfq.provider_response ? (
             <div>
               <h3 className="text-sm font-semibold mb-3">Provider Response</h3>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="bg-white border border-green-200 rounded-lg p-4">
                 <div className="grid grid-cols-2 gap-4 text-sm mb-3">
                   <div>
                     <p className="text-muted-foreground">Price</p>

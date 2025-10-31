@@ -1,33 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
 import {
-  TrendingUp,
-  TrendingDown,
-  Mail,
   Package,
   Users,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Search,
-  Plus,
-  MoreVertical,
   ArrowUpRight,
+  Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface DashboardStats {
-  emailDeliverability: number;
   totalOrders: number;
   activeOrders: number;
   completedOrders: number;
-  avgResponseTime: number;
   successRate: number;
   totalSuppliers: number;
   activeSuppliers: number;
@@ -54,11 +43,9 @@ interface Order {
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
-    emailDeliverability: 13.2,
     totalOrders: 0,
     activeOrders: 0,
     completedOrders: 0,
-    avgResponseTime: 0,
     successRate: 0,
     totalSuppliers: 0,
     activeSuppliers: 0,
@@ -84,7 +71,6 @@ export default function DashboardPage() {
       const quotationsData = await quotationsRes.json();
       const providersData = await providersRes.json();
 
-      // Set stats
       if (quotationsData.stats) {
         setStats((prev) => ({
           ...prev,
@@ -100,12 +86,10 @@ export default function DashboardPage() {
         }));
       }
 
-      // Set recent orders
       if (quotationsData.quotations) {
         setRecentOrders(quotationsData.quotations.slice(0, 5));
       }
 
-      // Set providers
       if (providersData.providers) {
         setProviders(providersData.providers.slice(0, 5));
         setStats((prev) => ({
@@ -121,270 +105,83 @@ export default function DashboardPage() {
     }
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'ready_for_human':
+        return 'text-green-600 bg-green-50 border-green-200';
+      case 'gathering_info':
+        return 'text-blue-600 bg-blue-50 border-blue-200';
+      case 'waiting_providers':
+        return 'text-amber-600 bg-amber-50 border-amber-200';
+      case 'quoted':
+        return 'text-purple-600 bg-purple-50 border-purple-200';
+      default:
+        return 'text-gray-600 bg-gray-50 border-gray-200';
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="border-b border-border bg-white">
         <div className="px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-              <p className="text-muted-foreground mt-1">
-                AI Performance metrics and system overview
+              <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Overview of your quotations and suppliers
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="gap-2">
-                <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                AI
-              </Button>
-              <Button size="sm" className="gap-2">
-                <Plus className="h-4 w-4" />
-                New Record
-              </Button>
-              <Button variant="ghost" size="sm">
-                <span className="text-sm font-mono">⌘K</span>
-              </Button>
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="mt-4 max-w-md">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search"
-                className="pl-10 bg-background"
-              />
-              <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-xs text-muted-foreground font-mono">
-                /
-              </kbd>
-            </div>
+            <Button size="sm" className="gap-2">
+              <Plus className="h-4 w-4" />
+              New order
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-8">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Metric Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Email Deliverability - Cyan */}
-            <Card className="border-2 border-cyan-200 dark:border-cyan-800 bg-gradient-to-br from-cyan-50/50 to-white dark:from-cyan-950/20 dark:to-background">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-cyan-500" />
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Email Deliverability
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.emailDeliverability} %</div>
-                <div className="mt-4 h-12">
-                  <svg className="w-full h-full" viewBox="0 0 100 40" preserveAspectRatio="none">
-                    <path
-                      d="M 0,20 L 20,18 L 40,22 L 60,15 L 80,25 L 100,20"
-                      fill="none"
-                      stroke="hsl(var(--cyan-300))"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M 0,20 L 20,18 L 40,22 L 60,15 L 80,25 L 100,20 L 100,40 L 0,40 Z"
-                      fill="hsl(var(--cyan-100))"
-                      opacity="0.3"
-                    />
-                  </svg>
-                </div>
-              </CardContent>
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="p-5 border border-border bg-white">
+              <div className="text-sm text-muted-foreground mb-1">Total orders</div>
+              <div className="text-3xl font-semibold">{stats.totalOrders}</div>
             </Card>
-
-            {/* Success Rate - Pink */}
-            <Card className="border-2 border-pink-200 dark:border-pink-800 bg-gradient-to-br from-pink-50/50 to-white dark:from-pink-950/20 dark:to-background">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-pink-500" />
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Success Rate
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.successRate.toFixed(1)} %</div>
-                <div className="mt-4 h-12">
-                  <svg className="w-full h-full" viewBox="0 0 100 40" preserveAspectRatio="none">
-                    <path
-                      d="M 0,25 L 20,20 L 40,18 L 60,15 L 80,12 L 100,10"
-                      fill="none"
-                      stroke="hsl(var(--pink-200))"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M 0,25 L 20,20 L 40,18 L 60,15 L 80,12 L 100,10 L 100,40 L 0,40 Z"
-                      fill="hsl(var(--pink-100))"
-                      opacity="0.3"
-                    />
-                  </svg>
-                </div>
-              </CardContent>
+            <Card className="p-5 border border-border bg-white">
+              <div className="text-sm text-muted-foreground mb-1">Active</div>
+              <div className="text-3xl font-semibold">{stats.activeOrders}</div>
             </Card>
-
-            {/* Active Orders - Yellow */}
-            <Card className="border-2 border-expression-200 dark:border-expression-300 bg-gradient-to-br from-expression-100/50 to-white dark:from-expression-300/10 dark:to-background">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-expression-300" />
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Active Orders
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.activeOrders}</div>
-                <div className="mt-4 h-12">
-                  <svg className="w-full h-full" viewBox="0 0 100 40" preserveAspectRatio="none">
-                    <path
-                      d="M 0,30 L 20,25 L 40,20 L 60,22 L 80,18 L 100,20"
-                      fill="none"
-                      stroke="hsl(var(--expression-200))"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M 0,30 L 20,25 L 40,20 L 60,22 L 80,18 L 100,20 L 100,40 L 0,40 Z"
-                      fill="hsl(var(--expression-100))"
-                      opacity="0.3"
-                    />
-                  </svg>
-                </div>
-              </CardContent>
+            <Card className="p-5 border border-border bg-white">
+              <div className="text-sm text-muted-foreground mb-1">Completed</div>
+              <div className="text-3xl font-semibold">{stats.completedOrders}</div>
             </Card>
-
-            {/* Total Orders - Green */}
-            <Card className="border-2 border-green-200 dark:border-green-800 bg-gradient-to-br from-green-50/50 to-white dark:from-green-950/20 dark:to-background">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500" />
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Total Orders
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.totalOrders}</div>
-                <div className="mt-4 h-12">
-                  <svg className="w-full h-full" viewBox="0 0 100 40" preserveAspectRatio="none">
-                    <path
-                      d="M 0,35 L 20,30 L 40,28 L 60,25 L 80,20 L 100,15"
-                      fill="none"
-                      stroke="hsl(145 60% 50%)"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M 0,35 L 20,30 L 40,28 L 60,25 L 80,20 L 100,15 L 100,40 L 0,40 Z"
-                      fill="hsl(145 60% 50%)"
-                      opacity="0.2"
-                    />
-                  </svg>
-                </div>
-              </CardContent>
+            <Card className="p-5 border border-border bg-white">
+              <div className="text-sm text-muted-foreground mb-1">Success rate</div>
+              <div className="text-3xl font-semibold">{stats.successRate.toFixed(0)}%</div>
             </Card>
           </div>
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Suppliers Section */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Suppliers</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Recently found suppliers ({stats.totalSuppliers} total)
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="sm" className="gap-1" asChild>
-                    <a href="/suppliers">
-                      View All
-                      <ArrowUpRight className="h-3 w-3" />
-                    </a>
-                  </Button>
+            {/* Recent Orders */}
+            <Card className="border border-border bg-white">
+              <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-semibold">Recent orders</h2>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    {stats.totalOrders} total
+                  </p>
                 </div>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="space-y-3">
-                    {[...Array(3)].map((_, i) => (
-                      <Skeleton key={i} className="h-16 w-full" />
-                    ))}
-                  </div>
-                ) : providers.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">No suppliers found yet</p>
-                    <Button variant="outline" size="sm" className="mt-3 gap-2">
-                      <Plus className="h-4 w-4" />
-                      Find Suppliers
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {providers.map((provider) => (
-                      <div
-                        key={provider.id}
-                        className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/5 transition-colors cursor-pointer"
-                      >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="h-8 w-8 rounded-full bg-cyan-100 dark:bg-cyan-950 flex items-center justify-center flex-shrink-0">
-                            <Users className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{provider.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {provider.email || 'No email'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {provider.is_active && (
-                            <div className="h-2 w-2 rounded-full bg-green-500" />
-                          )}
-                          <Badge variant="secondary" className="text-xs">
-                            {provider.total_quotes_requested} RFQs
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                    {providers.length >= 5 && (
-                      <Button variant="ghost" size="sm" className="w-full mt-2" asChild>
-                        <a href="/suppliers">
-                          View all {stats.totalSuppliers} suppliers →
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Orders Section */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Orders</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Recent quotation requests ({stats.totalOrders} total)
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="sm" className="gap-1" asChild>
-                    <a href="/orders">
-                      View All
-                      <ArrowUpRight className="h-3 w-3" />
-                    </a>
+                <Link href="/orders">
+                  <Button variant="ghost" size="sm" className="gap-1">
+                    View all
+                    <ArrowUpRight className="h-3 w-3" />
                   </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
+                </Link>
+              </div>
+              <div className="p-6">
                 {loading ? (
                   <div className="space-y-3">
                     {[...Array(3)].map((_, i) => (
@@ -392,72 +189,98 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 ) : recentOrders.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <Package className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">No orders yet</p>
-                    <Button className="mt-3 gap-2 bg-cyan-500 hover:bg-cyan-600" size="sm">
-                      <CheckCircle2 className="h-4 w-4" />
-                      Process New Emails
-                    </Button>
+                  <div className="py-16 text-center">
+                    <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted/50 mb-4">
+                      <Package className="h-8 w-8 text-muted-foreground/50" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-sm font-medium text-foreground mb-1">No orders yet</p>
+                    <p className="text-xs text-muted-foreground">Orders will appear here once you receive them</p>
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {recentOrders.map((order) => (
                       <div
                         key={order.id}
-                        className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/5 transition-colors cursor-pointer"
+                        className="flex items-center gap-4 p-3 rounded-lg border border-border hover:bg-muted/20 transition-all duration-200 cursor-pointer group"
                       >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className={cn(
-                            "h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0",
-                            order.status === 'ready_for_human' && "bg-emerald-100 dark:bg-emerald-950",
-                            order.status === 'gathering_info' && "bg-blue-100 dark:bg-blue-950",
-                            order.status === 'waiting_providers' && "bg-amber-100 dark:bg-amber-950",
-                            order.status === 'quoted' && "bg-violet-100 dark:bg-violet-950"
-                          )}>
-                            <Package className={cn(
-                              "h-4 w-4",
-                              order.status === 'ready_for_human' && "text-emerald-600 dark:text-emerald-400",
-                              order.status === 'gathering_info' && "text-blue-600 dark:text-blue-400",
-                              order.status === 'waiting_providers' && "text-amber-600 dark:text-amber-400",
-                              order.status === 'quoted' && "text-violet-600 dark:text-violet-400"
-                            )} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">
-                              {order.customer_name || order.customer_email}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {order.parts_description || 'No description'}
-                            </p>
-                          </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {order.customer_name || order.customer_email}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {order.parts_description || 'No description'}
+                          </p>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <Badge
-                            variant="secondary"
-                            className={cn(
-                              "text-xs",
-                              order.status === 'ready_for_human' && "bg-emerald-100 text-emerald-700",
-                              order.status === 'gathering_info' && "bg-blue-100 text-blue-700",
-                              order.status === 'waiting_providers' && "bg-amber-100 text-amber-700",
-                              order.status === 'quoted' && "bg-violet-100 text-violet-700"
-                            )}
-                          >
-                            {order.status.replace('_', ' ')}
-                          </Badge>
+                        <span className={cn(
+                          "text-xs px-2.5 py-1 rounded-md border font-medium",
+                          getStatusColor(order.status)
+                        )}>
+                          {order.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* Suppliers */}
+            <Card className="border border-border bg-white">
+              <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-semibold">Suppliers</h2>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    {stats.totalSuppliers} total
+                  </p>
+                </div>
+                <Link href="/suppliers">
+                  <Button variant="ghost" size="sm" className="gap-1">
+                    View all
+                    <ArrowUpRight className="h-3 w-3" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="p-6">
+                {loading ? (
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                      <Skeleton key={i} className="h-16 w-full" />
+                    ))}
+                  </div>
+                ) : providers.length === 0 ? (
+                  <div className="py-16 text-center">
+                    <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted/50 mb-4">
+                      <Users className="h-8 w-8 text-muted-foreground/50" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-sm font-medium text-foreground mb-1">No suppliers yet</p>
+                    <p className="text-xs text-muted-foreground">Add suppliers to start managing them</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {providers.map((provider) => (
+                      <div
+                        key={provider.id}
+                        className="flex items-center gap-4 p-3 rounded-lg border border-border hover:bg-muted/20 transition-all duration-200 cursor-pointer group"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{provider.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {provider.email || 'No email'}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {provider.is_active && (
+                            <div className="h-2 w-2 rounded-full bg-green-500" />
+                          )}
+                          <span className="text-xs text-muted-foreground font-medium">
+                            {provider.total_quotes_requested} RFQs
+                          </span>
                         </div>
                       </div>
                     ))}
-                    {recentOrders.length >= 5 && (
-                      <Button variant="ghost" size="sm" className="w-full mt-2" asChild>
-                        <a href="/orders">
-                          View all {stats.totalOrders} orders →
-                        </a>
-                      </Button>
-                    )}
                   </div>
                 )}
-              </CardContent>
+              </div>
             </Card>
           </div>
         </div>

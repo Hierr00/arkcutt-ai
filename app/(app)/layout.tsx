@@ -1,4 +1,6 @@
 import { AppSidebar } from '@/components/app-sidebar';
+import { SiteHeader } from '@/components/site-header';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 export default function AppLayout({
   children,
@@ -6,11 +8,14 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen overflow-hidden">
+    <SidebarProvider>
       <AppSidebar />
-      <main className="flex-1 overflow-y-auto bg-background">
-        {children}
-      </main>
-    </div>
+      <SidebarInset>
+        <SiteHeader />
+        <div className="flex flex-1 flex-col overflow-auto">
+          {children}
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

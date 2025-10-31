@@ -10,7 +10,9 @@
       "Bash(npm install @radix-ui/react-icons)",
       "Bash(taskkill /F /IM node.exe)",
       "Bash(node scripts/check-rfqs.js:*)",
-      "Bash(node scripts/check-pdf-processing.js:*)"
+      "Bash(node scripts/check-pdf-processing.js:*)",
+      "Bash(taskkill:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

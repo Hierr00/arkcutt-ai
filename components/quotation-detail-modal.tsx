@@ -88,7 +88,7 @@ export function QuotationDetailModal({ quotationId, onClose }: Props) {
         className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
         onClick={onClose}
       >
-        <Card className="max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
+        <Card className="max-w-4xl w-full bg-white border border-border" onClick={(e) => e.stopPropagation()}>
           <CardContent className="py-16 text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
             <p className="text-sm text-muted-foreground mt-4">Loading details...</p>
@@ -148,8 +148,8 @@ export function QuotationDetailModal({ quotationId, onClose }: Props) {
         ) : (
           <div className="space-y-4">
             {emailInteractions.map((email: any) => (
-              <Card key={email.id} className={`${
-                email.direction === 'outbound' ? 'bg-green-50/50 border-green-200' : 'bg-blue-50/50 border-blue-200'
+              <Card key={email.id} className={`bg-white ${
+                email.direction === 'outbound' ? 'border-green-200' : 'border-blue-200'
               }`}>
                 <CardContent className="p-4">
                   {/* Email Header */}
@@ -271,7 +271,7 @@ export function QuotationDetailModal({ quotationId, onClose }: Props) {
         ) : (
           <div className="grid grid-cols-2 gap-4">
             {attachments.map((attachment: any, idx: number) => (
-              <Card key={idx} className="hover:shadow-md transition-shadow">
+              <Card key={idx} className="bg-white border border-border hover:bg-muted/20 transition-all duration-200">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -318,10 +318,10 @@ export function QuotationDetailModal({ quotationId, onClose }: Props) {
       onClick={onClose}
     >
       <Card
-        className="max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+        className="max-w-6xl w-full max-h-[90vh] overflow-y-auto bg-white border border-border"
         onClick={(e) => e.stopPropagation()}
       >
-        <CardHeader className="border-b sticky top-0 bg-card z-10">
+        <CardHeader className="border-b border-border sticky top-0 bg-white z-10">
           <div className="flex items-center justify-between mb-4">
             <div>
               <CardTitle>
@@ -372,7 +372,7 @@ export function QuotationDetailModal({ quotationId, onClose }: Props) {
               {quotation.agent_analysis && (
                 <div>
                   <h3 className="text-sm font-semibold mb-3">AI Analysis</h3>
-                  <div className="bg-muted rounded-lg p-4 space-y-3 text-sm">
+                  <div className="bg-muted/30 rounded-lg p-4 space-y-3 text-sm border border-border">
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Confidence Score</span>
                       <Badge variant={
@@ -399,7 +399,7 @@ export function QuotationDetailModal({ quotationId, onClose }: Props) {
               {/* Customer Information */}
               <div>
                 <h3 className="text-sm font-semibold mb-3">Customer Information</h3>
-                <div className="bg-muted rounded-lg p-4 space-y-2 text-sm">
+                <div className="bg-muted/30 rounded-lg p-4 space-y-2 text-sm border border-border">
                   <div>
                     <span className="text-muted-foreground">Name: </span>
                     <span className="font-medium">{quotation.customer_name || 'N/A'}</span>
@@ -420,7 +420,7 @@ export function QuotationDetailModal({ quotationId, onClose }: Props) {
               {/* Part Specifications */}
               <div>
                 <h3 className="text-sm font-semibold mb-3">Part Specifications</h3>
-                <div className="bg-muted rounded-lg p-4 space-y-2 text-sm">
+                <div className="bg-muted/30 rounded-lg p-4 space-y-2 text-sm border border-border">
                   <div>
                     <span className="text-muted-foreground">Description: </span>
                     <span className="font-medium">{quotation.parts_description || 'N/A'}</span>
@@ -450,7 +450,7 @@ export function QuotationDetailModal({ quotationId, onClose }: Props) {
                   </h3>
                   <div className="space-y-2">
                     {externalQuotes.map((quote: any) => (
-                      <div key={quote.id} className="border rounded-lg p-3">
+                      <div key={quote.id} className="bg-white border border-border rounded-lg p-3">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <p className="font-medium text-sm">{quote.provider_name}</p>
@@ -498,7 +498,7 @@ export function QuotationDetailModal({ quotationId, onClose }: Props) {
 
                       {/* Activity content */}
                       <div className="flex-1 pb-2">
-                        <div className="bg-muted rounded-lg p-3 space-y-2">
+                        <div className="bg-muted/30 rounded-lg p-3 space-y-2 border border-border">
                           {/* Header */}
                           <div className="flex items-start justify-between">
                             <div>
