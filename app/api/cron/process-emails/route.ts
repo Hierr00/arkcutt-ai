@@ -18,8 +18,13 @@ export async function GET(request: NextRequest) {
   try {
     // Verificar autenticación
     const authHeader = request.headers.get('authorization');
+    const userAgent = request.headers.get('user-agent');
 
-    if (authHeader !== `Bearer ${CRON_SECRET}`) {
+    // Permitir Vercel Cron (user-agent: vercel-cron/1.0) o Authorization header válido
+    const isVercelCron = userAgent?.includes('vercel-cron');
+    const hasValidAuth = authHeader === `Bearer ${CRON_SECRET}`;
+
+    if (!isVercelCron && !hasValidAuth) {
       log('warn', '⚠️ Intento de acceso no autorizado al cron job');
       return NextResponse.json(
         { error: 'Unauthorized' },
