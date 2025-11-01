@@ -12,7 +12,10 @@
       "Bash(node scripts/check-rfqs.js:*)",
       "Bash(node scripts/check-pdf-processing.js:*)",
       "Bash(taskkill:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
