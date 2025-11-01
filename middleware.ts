@@ -143,7 +143,11 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
 
   // API routes that don't require authentication
-  const publicApiRoutes = ['/api/health', '/api/webhooks'];
+  const publicApiRoutes = [
+    '/api/health',
+    '/api/webhooks',
+    '/api/fin', // Fin AI endpoints (authenticate via Bearer token, not Supabase session)
+  ];
   const isPublicApiRoute = publicApiRoutes.some((route) => pathname.startsWith(route));
 
   // If user is authenticated and trying to access login/register, redirect to dashboard
