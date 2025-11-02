@@ -18,6 +18,27 @@ import { sendEmail } from '@/lib/tools/gmail.tools';
 import { generateProviderEmail } from '@/lib/tools/providers.tools';
 
 /**
+ * GET handler - Returns endpoint info
+ */
+export async function GET(req: NextRequest) {
+  return NextResponse.json(
+    {
+      endpoint: 'create-quotation-request',
+      method: 'POST',
+      description: 'Creates quotation requests from Fin and initiates provider search',
+      status: 'active',
+      authentication: 'Bearer token required',
+    },
+    {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+    }
+  );
+}
+
+/**
  * OPTIONS handler for CORS preflight
  */
 export async function OPTIONS(req: NextRequest) {
