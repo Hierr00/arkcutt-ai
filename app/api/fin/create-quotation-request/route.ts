@@ -4,6 +4,8 @@
  * Cuando Fin recopila toda la información necesaria de un cliente,
  * llama a este endpoint para crear la quotation request y disparar
  * el flujo de búsqueda de proveedores y envío de RFQs.
+ *
+ * @version 1.0.1
  */
 
 import { NextRequest, NextResponse } from 'next/server';
