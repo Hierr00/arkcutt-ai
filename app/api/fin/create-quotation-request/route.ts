@@ -18,6 +18,23 @@ import { sendEmail } from '@/lib/tools/gmail.tools';
 import { generateProviderEmail } from '@/lib/tools/providers.tools';
 
 /**
+ * OPTIONS handler for CORS preflight
+ */
+export async function OPTIONS(req: NextRequest) {
+  return NextResponse.json(
+    {},
+    {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
+    }
+  );
+}
+
+/**
  * POST /api/fin/create-quotation-request
  * Crea quotation request y dispara flujo de proveedores
  */
@@ -32,7 +49,12 @@ export async function POST(req: NextRequest) {
     if (!token || token !== process.env.FIN_API_TOKEN) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
-        { status: 401 }
+        {
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
       );
     }
 
@@ -56,7 +78,12 @@ export async function POST(req: NextRequest) {
           error: 'Database configuration error',
           message: 'SUPABASE_SERVICE_ROLE_KEY not configured',
         },
-        { status: 500 }
+        {
+          status: 500,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
       );
     }
 
@@ -305,6 +332,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(response, {
       status: 200,
       headers: {
+        'Access-Control-Allow-Origin': '*',
         'X-Response-Time': `${responseTime}ms`,
       },
     });
@@ -325,7 +353,12 @@ export async function POST(req: NextRequest) {
           error: 'Validation error',
           details: error.errors,
         },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
       );
     }
 
@@ -339,6 +372,7 @@ export async function POST(req: NextRequest) {
       {
         status: 500,
         headers: {
+          'Access-Control-Allow-Origin': '*',
           'X-Response-Time': `${responseTime}ms`,
         },
       }
