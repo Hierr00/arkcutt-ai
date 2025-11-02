@@ -1,11 +1,12 @@
 /**
  * 🎯 API ENDPOINT: Create Quotation Request (Called by Fin)
  *
- * Cuando Fin recopila toda la información necesaria de un cliente,
- * llama a este endpoint para crear la quotation request y disparar
- * el flujo de búsqueda de proveedores y envío de RFQs.
+ * ARKCUTT CORTE LÁSER - Barcelona y Madrid
  *
- * @version 1.0.1
+ * Cuando Fin recopila toda la información necesaria de un cliente de corte láser,
+ * llama a este endpoint para crear la quotation request en la BD.
+ *
+ * @version 2.0.0 - Adaptado para servicios de corte láser
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,10 +15,6 @@ import {
   CreateQuotationFromFinSchema,
   type CreateQuotationFromFinResponse,
 } from '@/lib/types/fin-quotation.types';
-import { checkIfServiceIsExternal } from '@/lib/tools/providers.tools';
-import { findProviders } from '@/lib/tools/provider-search.tools';
-import { sendEmail } from '@/lib/tools/gmail.tools';
-import { generateProviderEmail } from '@/lib/tools/providers.tools';
 
 /**
  * GET handler - Returns endpoint info
@@ -27,7 +24,9 @@ export async function GET(req: NextRequest) {
     {
       endpoint: 'create-quotation-request',
       method: 'POST',
-      description: 'Creates quotation requests from Fin and initiates provider search',
+      description: 'Creates laser cutting quotation requests from Fin (Arkcutt)',
+      service: 'corte_laser',
+      locations: ['Madrid', 'Barcelona'],
       status: 'active',
       authentication: 'Bearer token required',
     },
@@ -87,9 +86,9 @@ export async function POST(req: NextRequest) {
 
     console.log('[create-quotation-request] Request received:', {
       customer: validatedData.customer_email,
-      services: validatedData.services.map(s => s.service_type),
-      material: validatedData.material_requested,
-      quantity: validatedData.quantity,
+      city: validatedData.city,
+      material: validatedData.material,
+      delivery: validatedData.delivery_method,
     });
 
     // 3. Verificar que supabaseAdmin esté disponible
