@@ -16,7 +16,7 @@ export const CreateQuotationFromFinSchema = z.object({
 
   // Información de la pieza/servicio
   parts_description: z.string().min(10, 'Descripción muy corta'),
-  quantity: z.number().int().positive('Cantidad debe ser positiva'),
+  quantity: z.coerce.number().int().positive('Cantidad debe ser positiva'), // coerce convierte strings a números
   material_requested: z.string().min(2, 'Material requerido'),
 
   // Servicios solicitados (puede incluir mecanizado + servicios externos)
