@@ -47,7 +47,20 @@ export async function POST(req: NextRequest) {
       quantity: validatedData.quantity,
     });
 
-    // 3. Crear quotation_request en la BD
+    // 3. Verificar que supabaseAdmin esté disponible
+    if (!supabaseAdmin) {
+      console.error('[create-quotation-request] supabaseAdmin not configured');
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Database configuration error',
+          message: 'SUPABASE_SERVICE_ROLE_KEY not configured',
+        },
+        { status: 500 }
+      );
+    }
+
+    // 4. Crear quotation_request en la BD
     const { data: quotationRequest, error: createError } = await supabaseAdmin
       .from('quotation_requests')
       .insert({
@@ -81,7 +94,7 @@ export async function POST(req: NextRequest) {
 
     console.log('[create-quotation-request] Quotation request created:', quotationRequest.id);
 
-    // 4. Clasificar servicios: internos vs externos
+    // 5. Clasificar servicios: internos vs externos
     const internalServices: string[] = [];
     const externalServices: Array<{
       service: string;
@@ -108,7 +121,7 @@ export async function POST(req: NextRequest) {
       external: externalServices.map(s => s.service),
     });
 
-    // 5. Guardar clasificación de servicios en el quotation_request
+    // 6. Guardar clasificación de servicios en el quotation_request
     await supabaseAdmin
       .from('quotation_requests')
       .update({
@@ -124,14 +137,14 @@ export async function POST(req: NextRequest) {
       })
       .eq('id', quotationRequest.id);
 
-    // 6. Para cada servicio externo: buscar proveedores y enviar RFQs
+    // 7. Para cada servicio externo: buscar proveedores y enviar RFQs
     const externalServicesResults = [];
 
     for (const externalService of externalServices) {
       try {
         console.log('[create-quotation-request] Searching providers for:', externalService.service);
 
-        // 6a. Buscar proveedores (primero en DB, luego Google)
+        // 7a. Buscar proveedores (primero en DB, luego Google)
         const providers = await findProviders({
           service: externalService.service,
           material: validatedData.material_requested,
@@ -151,7 +164,7 @@ export async function POST(req: NextRequest) {
           fromGoogle: providers.fromGoogle.length,
         });
 
-        // 6b. Enviar RFQ a cada proveedor (máximo 5 para no saturar)
+        // 7b. Enviar RFQ a cada proveedor (máximo 5 para no saturar)
         const providersToContact = allProviders.slice(0, 5);
         let rfqsSent = 0;
 
@@ -247,14 +260,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 7. Actualizar estado del quotation_request
+    // 8. Actualizar estado del quotation_request
     const newStatus = externalServices.length > 0 ? 'waiting_providers' : 'ready_for_human';
     await supabaseAdmin
       .from('quotation_requests')
       .update({ status: newStatus })
       .eq('id', quotationRequest.id);
 
-    // 8. Generar mensaje para el cliente
+    // 9. Generar mensaje para el cliente
     const totalRFQsSent = externalServicesResults.reduce((sum, s) => sum + s.rfqs_sent, 0);
     const hasExternalServices = externalServices.length > 0;
 
@@ -269,7 +282,7 @@ export async function POST(req: NextRequest) {
 
     const responseTime = Date.now() - startTime;
 
-    // 9. Respuesta a Fin
+    // 10. Respuesta a Fin
     const response: CreateQuotationFromFinResponse = {
       success: true,
       quotation_request_id: quotationRequest.id,
