@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
 
         status: 'pending',
         conversation_thread_id: validatedData.thread_id,
-        external_id: validatedData.conversation_id || `fin-${Date.now()}`,
+        external_id: `${validatedData.conversation_id || 'fin'}-${Date.now()}`,
         attachments: validatedData.attachments || [],
         last_interaction: new Date().toISOString(),
 
