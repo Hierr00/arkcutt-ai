@@ -91,6 +91,7 @@ function OrdersContent() {
   const [quotations, setQuotations] = useState<QuotationRequest[]>([]);
   const [filteredQuotations, setFilteredQuotations] = useState<QuotationRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string | null>(null); // null = all
   const [stats, setStats] = useState<Stats>({
     total: 0,
     pending: 0,
@@ -136,23 +137,29 @@ function OrdersContent() {
   }
 
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredQuotations(quotations);
-      return;
+    let filtered = quotations;
+
+    // Apply status filter
+    if (statusFilter) {
+      filtered = filtered.filter((q) => q.status === statusFilter);
     }
 
-    const query = searchQuery.toLowerCase();
-    const filtered = quotations.filter((q) => {
-      return (
-        q.customer_name?.toLowerCase().includes(query) ||
-        q.customer_email?.toLowerCase().includes(query) ||
-        q.customer_company?.toLowerCase().includes(query) ||
-        q.parts_description?.toLowerCase().includes(query) ||
-        q.material_requested?.toLowerCase().includes(query)
-      );
-    });
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((q) => {
+        return (
+          q.customer_name?.toLowerCase().includes(query) ||
+          q.customer_email?.toLowerCase().includes(query) ||
+          q.customer_company?.toLowerCase().includes(query) ||
+          q.parts_description?.toLowerCase().includes(query) ||
+          q.material_requested?.toLowerCase().includes(query)
+        );
+      });
+    }
+
     setFilteredQuotations(filtered);
-  }, [searchQuery, quotations]);
+  }, [searchQuery, quotations, statusFilter]);
 
   const getViewTitle = () => {
     switch (view) {
@@ -179,9 +186,24 @@ function OrdersContent() {
       <div className="border-b border-border bg-white">
         <div className="px-8 py-6">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex-1">
-              <h1 className="text-2xl font-semibold text-foreground">{viewInfo.title}</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">{viewInfo.description}</p>
+            <div className="flex-1 flex items-center gap-3">
+              <div>
+                <h1 className="text-2xl font-semibold text-foreground">{viewInfo.title}</h1>
+                <p className="text-sm text-muted-foreground mt-0.5">{viewInfo.description}</p>
+              </div>
+              {statusFilter && (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted border border-border">
+                  <span className="text-xs font-medium">
+                    Showing: {statusConfig[statusFilter as keyof typeof statusConfig]?.label || statusFilter}
+                  </span>
+                  <button
+                    onClick={() => setStatusFilter(null)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -194,6 +216,19 @@ function OrdersContent() {
                   className="h-9 w-64 rounded-md border border-border bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
+              {(searchQuery || statusFilter) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setStatusFilter(null);
+                  }}
+                  className="text-xs"
+                >
+                  Clear filters
+                </Button>
+              )}
               <Button size="sm" className="gap-2">
                 <Plus className="h-4 w-4" />
                 New order
@@ -201,25 +236,65 @@ function OrdersContent() {
             </div>
           </div>
 
-          {/* Stats */}
+          {/* Stats - Clickable Filters */}
           <div className="grid grid-cols-5 gap-4">
-            <Card className="p-4 border border-border bg-white">
+            <Card
+              className={cn(
+                "p-4 border cursor-pointer transition-all hover:shadow-md",
+                statusFilter === 'pending'
+                  ? "border-gray-500 bg-gray-50 ring-2 ring-gray-200"
+                  : "border-border bg-white"
+              )}
+              onClick={() => setStatusFilter(statusFilter === 'pending' ? null : 'pending')}
+            >
               <div className="text-xs text-muted-foreground mb-1">Pending</div>
               <div className="text-2xl font-semibold">{stats.pending || 0}</div>
             </Card>
-            <Card className="p-4 border border-border bg-white">
+            <Card
+              className={cn(
+                "p-4 border cursor-pointer transition-all hover:shadow-md",
+                statusFilter === 'ready_for_human'
+                  ? "border-green-500 bg-green-50 ring-2 ring-green-200"
+                  : "border-border bg-white"
+              )}
+              onClick={() => setStatusFilter(statusFilter === 'ready_for_human' ? null : 'ready_for_human')}
+            >
               <div className="text-xs text-muted-foreground mb-1">Ready</div>
               <div className="text-2xl font-semibold">{stats.ready_for_human}</div>
             </Card>
-            <Card className="p-4 border border-border bg-white">
+            <Card
+              className={cn(
+                "p-4 border cursor-pointer transition-all hover:shadow-md",
+                statusFilter === 'gathering_info'
+                  ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
+                  : "border-border bg-white"
+              )}
+              onClick={() => setStatusFilter(statusFilter === 'gathering_info' ? null : 'gathering_info')}
+            >
               <div className="text-xs text-muted-foreground mb-1">Gathering</div>
               <div className="text-2xl font-semibold">{stats.gathering_info}</div>
             </Card>
-            <Card className="p-4 border border-border bg-white">
+            <Card
+              className={cn(
+                "p-4 border cursor-pointer transition-all hover:shadow-md",
+                statusFilter === 'waiting_providers'
+                  ? "border-amber-500 bg-amber-50 ring-2 ring-amber-200"
+                  : "border-border bg-white"
+              )}
+              onClick={() => setStatusFilter(statusFilter === 'waiting_providers' ? null : 'waiting_providers')}
+            >
               <div className="text-xs text-muted-foreground mb-1">Finding</div>
               <div className="text-2xl font-semibold">{stats.waiting_providers}</div>
             </Card>
-            <Card className="p-4 border border-border bg-white">
+            <Card
+              className={cn(
+                "p-4 border cursor-pointer transition-all hover:shadow-md",
+                statusFilter === 'quoted'
+                  ? "border-purple-500 bg-purple-50 ring-2 ring-purple-200"
+                  : "border-border bg-white"
+              )}
+              onClick={() => setStatusFilter(statusFilter === 'quoted' ? null : 'quoted')}
+            >
               <div className="text-xs text-muted-foreground mb-1">Completed</div>
               <div className="text-2xl font-semibold">{stats.quoted}</div>
             </Card>
@@ -241,23 +316,26 @@ function OrdersContent() {
               <Mail className="h-8 w-8 text-muted-foreground/50" strokeWidth={1.5} />
             </div>
             <h3 className="text-base font-semibold mb-1">
-              {searchQuery ? 'No results found' : 'No orders found'}
+              {(searchQuery || statusFilter) ? 'No results found' : 'No orders found'}
             </h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              {searchQuery
-                ? `No orders match "${searchQuery}". Try a different search term.`
+              {searchQuery || statusFilter
+                ? `No orders match your filters. Try adjusting your search or filters.`
                 : view === 'active'
                 ? 'No active orders at the moment'
                 : `No orders in this category yet`}
             </p>
-            {searchQuery && (
+            {(searchQuery || statusFilter) && (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setSearchQuery('')}
+                onClick={() => {
+                  setSearchQuery('');
+                  setStatusFilter(null);
+                }}
                 className="mt-4"
               >
-                Clear search
+                Clear filters
               </Button>
             )}
           </div>
