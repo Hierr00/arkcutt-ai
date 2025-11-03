@@ -58,31 +58,37 @@ if (process.env.NODE_ENV !== 'production') {
 
 /**
  * PRODUCTION: File rotation + structured logs
+ * NOTE: File logging disabled in serverless environments (Vercel)
  */
 if (process.env.NODE_ENV === 'production') {
-  // All logs (info+)
-  logger.add(
-    new DailyRotateFile({
-      filename: path.join(process.cwd(), 'logs', 'application-%DATE%.log'),
-      datePattern: 'YYYY-MM-DD',
-      maxSize: '20m',
-      maxFiles: '14d', // Keep 2 weeks
-      level: 'info',
-    })
-  );
+  const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
 
-  // Error logs only
-  logger.add(
-    new DailyRotateFile({
-      filename: path.join(process.cwd(), 'logs', 'error-%DATE%.log'),
-      datePattern: 'YYYY-MM-DD',
-      maxSize: '20m',
-      maxFiles: '30d', // Keep errors for 1 month
-      level: 'error',
-    })
-  );
+  // Only use file logging in non-serverless environments
+  if (!isServerless) {
+    // All logs (info+)
+    logger.add(
+      new DailyRotateFile({
+        filename: path.join(process.cwd(), 'logs', 'application-%DATE%.log'),
+        datePattern: 'YYYY-MM-DD',
+        maxSize: '20m',
+        maxFiles: '14d', // Keep 2 weeks
+        level: 'info',
+      })
+    );
 
-  // Also console in production (for Docker/Kubernetes logs)
+    // Error logs only
+    logger.add(
+      new DailyRotateFile({
+        filename: path.join(process.cwd(), 'logs', 'error-%DATE%.log'),
+        datePattern: 'YYYY-MM-DD',
+        maxSize: '20m',
+        maxFiles: '30d', // Keep errors for 1 month
+        level: 'error',
+      })
+    );
+  }
+
+  // Always use console in production (for Docker/Kubernetes/Vercel logs)
   logger.add(
     new winston.transports.Console({
       format: combine(
