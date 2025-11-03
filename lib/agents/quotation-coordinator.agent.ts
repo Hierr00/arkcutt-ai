@@ -75,8 +75,16 @@ export async function processNewEmails(): Promise<{
           'replit.com',
           'reflag.com',
           'spline.design',
+          'skool.com',
+          'link.com',
+          'google.com',
+          'ryanairemail.com',
+          'uploadcare.com',
+          'sorare.com',
+          'singulart.com',
           'noreply@',
           'no-reply@',
+          'marketing@',
         ];
 
         const isLikelySpam = spamDomains.some(domain => email.from.toLowerCase().includes(domain));
