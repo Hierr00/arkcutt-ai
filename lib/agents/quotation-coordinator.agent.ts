@@ -256,6 +256,7 @@ async function createQuotationRequest(
         conversation_thread_id: email.threadId,
         last_interaction: new Date(),
         agent_analysis: {
+          source: 'email',
           classification: classification.emailType,
           confidence: classification.confidence,
           extractedData: classification.extractedData,
