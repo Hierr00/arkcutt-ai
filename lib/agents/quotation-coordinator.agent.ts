@@ -67,7 +67,29 @@ export async function processNewEmails(): Promise<{
     // 2. Procesar cada email
     for (const email of emails) {
       try {
-        // 2a. Verificar si es parte de un thread existente
+        // 2a. FILTRO RÁPIDO: Detectar spam común sin usar OpenAI (ahorro de costos)
+        const spamDomains = [
+          'substack.com',
+          'revolut.com',
+          'framer.com',
+          'replit.com',
+          'reflag.com',
+          'spline.design',
+          'noreply@',
+          'no-reply@',
+        ];
+
+        const isLikelySpam = spamDomains.some(domain => email.from.toLowerCase().includes(domain));
+
+        if (isLikelySpam) {
+          log('info', `🚫 Email de ${email.from} filtrado como spam (ahorro de tokens)`);
+          await addLabelToEmail(email.id, 'Arkcutt/Spam');
+          await markEmailAsRead(email.id);
+          ignored++;
+          continue;
+        }
+
+        // 2b. Verificar si es parte de un thread existente
         const { data: existingQuotation } = await supabase
           .from('quotation_requests')
           .select('id, status, customer_email')
@@ -86,7 +108,7 @@ export async function processNewEmails(): Promise<{
           continue;
         }
 
-        // 2b. Email nuevo - Clasificar con guardrails
+        // 2c. Email nuevo - Clasificar con guardrails (usa OpenAI)
         const classification = await classifyEmail({
           id: email.id,
           from: email.from,
