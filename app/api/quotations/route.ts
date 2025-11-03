@@ -16,8 +16,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('quotation_requests')
       .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100);
+      .order('created_at', { ascending: false });
 
     // Filtrar por status específico si se proporciona
     if (status) {
@@ -32,11 +31,24 @@ export async function GET(request: NextRequest) {
         query = query.eq('status', status);
       }
     }
+
+    // Limitar resultados inteligentemente
+    // - Active: Más límite porque incluye muchos pending
+    // - Filtros específicos: Límite alto porque son pocos registros por status
+    // - All: Límite bajo para no cargar todo
+    if (status === 'active') {
+      query = query.limit(500); // Alto límite para active (incluye muchos pending)
+    } else if (status && status !== 'all' && status !== 'active') {
+      query = query.limit(1000); // Muy alto para filtros específicos (hay pocos)
+    } else {
+      query = query.limit(100); // Límite conservador para "all"
+    }
+
     // Filtrar según tipo legacy (para compatibilidad)
-    else if (type === 'handled') {
+    if (!status && type === 'handled') {
       // Solo pedidos reales (no escalados por spam/marketing)
       query = query.gte('agent_analysis->confidence', 0.70);
-    } else if (type === 'escalated') {
+    } else if (!status && type === 'escalated') {
       // Solo emails escalados (baja confianza o spam)
       query = query.lt('agent_analysis->confidence', 0.70);
     }
