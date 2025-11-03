@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
     // Filtrar por status específico si se proporciona
     if (status) {
       if (status === 'active') {
-        // Todos los estados activos
-        query = query.in('status', ['gathering_info', 'waiting_providers', 'ready_for_human']);
+        // Todos los estados activos (incluyendo pending para nuevos emails)
+        query = query.in('status', ['pending', 'gathering_info', 'waiting_providers', 'ready_for_human']);
       } else if (status === 'rejected_all') {
         // Rejected y spam juntos
         query = query.in('status', ['rejected', 'spam']);
@@ -63,10 +63,30 @@ export async function GET(request: NextRequest) {
       agent_analysis: q.agent_analysis,
     })) || [];
 
+    // Calcular estadísticas (solo si no se está filtrando por status específico o es 'active')
+    let stats = null;
+    if (!status || status === 'active') {
+      const { data: allData } = await supabase
+        .from('quotation_requests')
+        .select('status');
+
+      if (allData) {
+        stats = {
+          total: allData.length,
+          pending: allData.filter((q) => q.status === 'pending').length,
+          ready_for_human: allData.filter((q) => q.status === 'ready_for_human').length,
+          gathering_info: allData.filter((q) => q.status === 'gathering_info').length,
+          waiting_providers: allData.filter((q) => q.status === 'waiting_providers').length,
+          quoted: allData.filter((q) => q.status === 'quoted').length,
+        };
+      }
+    }
+
     return NextResponse.json({
       success: true,
       quotations,
       total: quotations.length,
+      ...(stats && { stats }),
     });
   } catch (error: any) {
     console.error('❌ Error fetching quotations:', error.message);

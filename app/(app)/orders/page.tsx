@@ -40,14 +40,18 @@ interface QuotationRequest {
 
 interface Stats {
   total: number;
+  pending: number;
   ready_for_human: number;
   gathering_info: number;
   waiting_providers: number;
-  pending: number;
   quoted: number;
 }
 
 const statusConfig = {
+  pending: {
+    label: 'Pending',
+    color: 'text-gray-600 bg-gray-50 border-gray-200',
+  },
   ready_for_human: {
     label: 'Ready',
     color: 'text-green-600 bg-green-50 border-green-200',
@@ -59,10 +63,6 @@ const statusConfig = {
   waiting_providers: {
     label: 'Finding providers',
     color: 'text-amber-600 bg-amber-50 border-amber-200',
-  },
-  pending: {
-    label: 'Pending',
-    color: 'text-gray-600 bg-gray-50 border-gray-200',
   },
   quoted: {
     label: 'Quoted',
@@ -93,10 +93,10 @@ function OrdersContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats] = useState<Stats>({
     total: 0,
+    pending: 0,
     ready_for_human: 0,
     gathering_info: 0,
     waiting_providers: 0,
-    pending: 0,
     quoted: 0,
   });
   const [loading, setLoading] = useState(true);
@@ -202,7 +202,11 @@ function OrdersContent() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-5 gap-4">
+            <Card className="p-4 border border-border bg-white">
+              <div className="text-xs text-muted-foreground mb-1">Pending</div>
+              <div className="text-2xl font-semibold">{stats.pending || 0}</div>
+            </Card>
             <Card className="p-4 border border-border bg-white">
               <div className="text-xs text-muted-foreground mb-1">Ready</div>
               <div className="text-2xl font-semibold">{stats.ready_for_human}</div>
