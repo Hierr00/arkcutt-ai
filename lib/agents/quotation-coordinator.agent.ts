@@ -82,9 +82,22 @@ export async function processNewEmails(): Promise<{
           'uploadcare.com',
           'sorare.com',
           'singulart.com',
+          'latitude.so',
+          'railway.app',
+          'nba.com',
+          'ngrok.com',
+          'alabamavintageshop.com',
+          'academia-mail.com',
+          'lemonsqueezy',
+          'minor-hotels.com',
+          'vercel.com',
+          'vueling.com',
+          'facebookmail.com',
           'noreply@',
           'no-reply@',
           'marketing@',
+          'updates@',
+          'team@',
         ];
 
         const isLikelySpam = spamDomains.some(domain => email.from.toLowerCase().includes(domain));
