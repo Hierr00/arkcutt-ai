@@ -67,7 +67,57 @@ export async function processNewEmails(): Promise<{
     // 2. Procesar cada email
     for (const email of emails) {
       try {
-        // 2a. FILTRO RÁPIDO: Detectar spam común sin usar OpenAI (ahorro de costos)
+        // 2a. FILTRO ANTI-BUCLE: Verificar si el email es de un proveedor conocido
+        const { data: providerEmails } = await supabase
+          .from('external_quotations')
+          .select('provider_email')
+          .eq('status', 'sent')
+          .not('provider_email', 'is', null);
+
+        const isFromProvider = providerEmails?.some(
+          (p) => email.from.toLowerCase().includes(p.provider_email.toLowerCase())
+        );
+
+        if (isFromProvider) {
+          log('info', `🔁 Email de proveedor conocido ${email.from}, ignorando para evitar bucle`);
+          await addLabelToEmail(email.id, 'Arkcutt/Provider-Response');
+          await markEmailAsRead(email.id);
+          ignored++;
+          continue;
+        }
+
+        // 2b. FILTRO ANTI-BUCLE: Detectar auto-respuestas y out-of-office
+        const autoReplyPatterns = [
+          'out of office',
+          'fuera de la oficina',
+          'automatic reply',
+          'respuesta automática',
+          'away from office',
+          'ausente',
+          'vacation',
+          'vacaciones',
+          'auto-reply',
+          'autoreply',
+          'delivery failure',
+          'undelivered',
+          'mailer-daemon',
+        ];
+
+        const isAutoReply = autoReplyPatterns.some(
+          (pattern) =>
+            email.subject.toLowerCase().includes(pattern) ||
+            email.body.toLowerCase().includes(pattern)
+        );
+
+        if (isAutoReply) {
+          log('info', `🤖 Auto-respuesta detectada de ${email.from}, ignorando`);
+          await addLabelToEmail(email.id, 'Arkcutt/Auto-Reply');
+          await markEmailAsRead(email.id);
+          ignored++;
+          continue;
+        }
+
+        // 2c. FILTRO RÁPIDO: Detectar spam común sin usar OpenAI (ahorro de costos)
         const spamDomains = [
           'substack.com',
           'revolut.com',
