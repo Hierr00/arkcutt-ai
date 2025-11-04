@@ -827,7 +827,10 @@ async function searchAndContactProviders(
       }
     }
 
-    log('info', '✅ Proveedores contactados');
+    // Actualizar status a "waiting_providers" después de enviar RFQs
+    await updateQuotationStatus(quotationRequestId, 'waiting_providers');
+
+    log('info', '✅ Proveedores contactados y status actualizado a waiting_providers');
   } catch (error: any) {
     log('error', '❌ Error buscando/contactando proveedores', {
       error: error.message,
